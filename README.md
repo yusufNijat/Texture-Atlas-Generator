@@ -2,11 +2,15 @@
 
 ## Building
 
-`javac AtlasGenerator.java`
+```
+javac AtlasGenerator.java
+```
 
 ## Usage
 
-pre. `AtlasGenerator <type> <textureWidth> <textureHeight>`
+```
+AtlasGenerator <type> <textureWidth> <textureHeight>
+```
   
 ## Flags
 
@@ -15,6 +19,7 @@ pre. `AtlasGenerator <type> <textureWidth> <textureHeight>`
 
 ## Example
 
-pre. `AtlasGenerator -f image.png 100 55`
-
+```
+AtlasGenerator -f image.png 128 128
+```
   
