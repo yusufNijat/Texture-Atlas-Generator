@@ -14,8 +14,8 @@ AtlasGenerator <type> <textureWidth> <textureHeight>
   
 ## Flags
 
-* -f            -->           File
-* -d            -->           Directory
+* `-f`            -->           File
+* `-d`            -->           Directory
 
 ## Example
 
