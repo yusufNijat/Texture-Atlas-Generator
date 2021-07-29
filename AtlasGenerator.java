@@ -1,9 +1,12 @@
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.io.IOException;
 
 public class AtlasGenerator {
@@ -19,32 +22,28 @@ public class AtlasGenerator {
             System.out.println("-d  -->  file Directory Path");
             System.out.println("-------------------------------\n");
             System.out.println("Usage: ");
-            System.out.println("Create .atlas file from an image file: \t-f path.png totalTextureCount Row");
-            System.out.println("Create .atlas files from Directory: \t-d path totalTextureCount Row");
+            System.out.println("Create .atlas file from an image file: \t-f path.png textureWidth(px) textureheight(px)");
+            System.out.println("Create .atlas files from Directory: \t-d path textureWidth textureheight");
             System.out.println("-------------------------------\n");
             System.out.println("Examples: ");
-            System.out.println("-f file.png 12 2");
+            System.out.println("-f file.png 100 55");
             System.exit(0);
-        } else {
+        } 
+        else {
             AtlasGenerator ag = new AtlasGenerator();
-            int totalTexture = toInteger(args[2]);
-            int textureRow = toInteger(args[3]);
+            int textureWidth = toInteger(args[2]);
+            int textureHeight = toInteger(args[3]);
+            Path path = Path.of(args[1]);
             if (args[0].equals("-f")) {
-                File f = new File(args[1]);
-                if (f.exists() && !f.isDirectory()) {
-                    if (totalTexture != -1) {
-                        if (textureRow != -1) {
-                            ag.generateFile(args[1], totalTexture, textureRow);
-                        }
+                if (Files.exists(path) && !Files.isDirectory(path)) {
+                    if (textureWidth != -1 && textureHeight != -1) {
+                        ag.generateFile(path, textureWidth, textureHeight);
                     }
                 }
             } else if (args[0].equals("-d")) {
-                File f = new File(args[1]);
-                if (f.exists() && f.isDirectory()) {
-                    if (totalTexture != -1) {
-                        if (textureRow != -1) {
-                            ag.generateDirectory(args[1], totalTexture, textureRow);
-                        }
+                if (Files.exists(path) && Files.isDirectory(path)) {
+                    if (textureWidth != -1 && textureHeight != -1) {
+                        ag.generateDirectory(path, textureWidth, textureHeight);
                     }
                 }
             } else {
@@ -53,43 +52,47 @@ public class AtlasGenerator {
         }
     }
 
-    void generateFile(String filePath, int totalTexture, int textureRow) throws IOException {
+    public void generateFile(Path path, int textureWidth, int textureHeight) throws IOException {
+        String fileName = path.getFileName().toString();
+        String atlasFileName = fileName.substring(0, fileName.indexOf(".")) + ".atlas";
 
-        File file = new File(filePath);
-        String atlasFileName = file.getName().substring(0, file.getName().indexOf(".")) + ".atlas";
+        Path newFile = Files.createFile(path.getParent().resolve(atlasFileName));
+        PrintWriter out = new PrintWriter(new FileWriter(newFile.toFile()));
 
-        PrintWriter out = new PrintWriter(new FileWriter(atlasFileName));
-
-        BufferedImage bimg = ImageIO.read(file);
+        BufferedImage bimg = ImageIO.read(path.toFile());
         int w = bimg.getWidth();
         int h = bimg.getHeight();
 
-        out.println(atlasFileName);
+        out.println("../" + fileName);
         out.println("format: RGBA8888");
         out.println("filter: Nearest,Nearest");
         out.println("repeat: none");
 
-        int texturesInRow = totalTexture / textureRow;
-        int textureWidth = w / texturesInRow;
-        int textureHeight = h / textureRow;
-        int textureXPos = 0;
-        for (int i = 1; i <= totalTexture; i++) {
-            for (int j = 0; j < texturesInRow; j++) {
-                out.println(String.format(String.format("%04d", i)));
+        int row = h / textureHeight;
+        int col = w / textureWidth;
+        int textureYPos = 0;
+        int textureCount = 1;
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                out.println(String.format(String.format("%04d", textureCount)));
                 out.println(String.format("  " + "rotate: false"));
-                out.println(String.format("  " + "xy: " + (textureWidth * j) + ", " + textureXPos));
+                out.println(String.format("  " + "xy: " + (textureWidth * textureCount) + ", " + textureYPos));
                 out.println(String.format("  " + "size: " + textureWidth + ", " + textureHeight));
                 out.println(String.format("  " + "orig: " + textureWidth + ", " + textureHeight));
                 out.println(String.format("  " + "offset: 0, 0"));
                 out.println(String.format("  " + "index: -1"));
+                textureCount++;
             }
-            textureXPos += textureHeight;
+            textureYPos += textureHeight;
         }
         out.close();
     }
 
-    void generateDirectory(String dirPath, int textureCount, int textureRow) {
-
+    public void generateDirectory(Path path, int textureWidth, int textureHeight) throws IOException {
+        File[] files = path.toFile().listFiles();
+        for (File file : files) {
+            generateFile(file.toPath(), textureWidth, textureHeight);
+        }
     }
 
     private static int toInteger(String str) {
