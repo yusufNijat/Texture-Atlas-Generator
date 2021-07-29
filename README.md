@@ -1,20 +1,20 @@
 # Texture-Atlas-Generator
 
-h2.Building
+## Building
 
-pre. javac AtlasGenerator.java
+`javac AtlasGenerator.java`
 
-h2. Usage
+## Usage
 
-pre. AtlasGenerator <type> <textureWidth> <textureHeight>
+pre. `AtlasGenerator <type> <textureWidth> <textureHeight>`
   
-h2. Flags
+## Flags
 
-pre. -f            -->           File
-pre. -d            -->           Directory
+* -f            -->           File
+* -d            -->           Directory
 
-h2. Example
+## Example
 
-pre. AtlasGenerator -f image.png 100 55 
+pre. `AtlasGenerator -f image.png 100 55`
 
   
