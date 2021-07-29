@@ -1,6 +1,6 @@
 # Texture-Atlas-Generator
 
-h2. Building
+h2.Building
 
 pre. javac AtlasGenerator.java
 
